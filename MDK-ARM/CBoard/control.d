@@ -34,6 +34,6 @@ cboard\control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 cboard\control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 cboard\control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 cboard\control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-cboard\control.o: ../User_Files/app_config.h
+cboard\control.o: ../User_Files/Motor/app_config.h
 cboard\control.o: ../User_Files/PID/pid.h
 cboard\control.o: D:\G\stm32\Keil5\ARM\ARMCC\Bin\..\include\math.h

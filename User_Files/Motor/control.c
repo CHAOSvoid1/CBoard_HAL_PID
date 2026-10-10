@@ -14,6 +14,7 @@ static volatile Control_Algorithm_t control_algorithm = CONTROL_ALGORITHM_SMC;
 static volatile Control_Algorithm_t control_algorithm = CONTROL_ALGORITHM_PID;
 #endif
 static volatile float target_speed_rpm;
+static float speed_reference_rpm;
 static volatile float target_position_deg;
 static volatile float speed_command_rpm;
 static float speed_feedback_filtered_rpm;
@@ -21,12 +22,20 @@ static uint8_t speed_filter_valid;
 static volatile int16_t current_command;
 static volatile uint8_t control_enabled;
 static volatile uint8_t position_guard_tripped;
+static uint8_t position_hold_active;
 static volatile float speed_ff_static_raw;
 static volatile float speed_ff_slope_raw_per_rpm;
 static float position_guard_start_error;
 static uint16_t position_guard_ticks;
 
 static float Control_Clamp(float value, float limit);
+
+static float Control_Approach(float current, float target, float max_delta)
+{
+    if (target > current + max_delta) return current + max_delta;
+    if (target < current - max_delta) return current - max_delta;
+    return target;
+}
 
 static float Control_Saturate(float value)
 {
@@ -97,11 +106,31 @@ static float Control_SpeedFeedforward(float target_rpm)
 #if APP_MOTOR_TYPE == MOTOR_TYPE_M3508
     float magnitude = fabsf(target_rpm);
     float friction;
+    float feedforward_rpm;
+    float low_speed_trim;
     if (magnitude < 1.0f) return 0.0f;
-    /* Identified from the unloaded 100/200/400 rpm segments.  The friction
-       term is ramped below 50 rpm to avoid a current step near zero speed. */
-    friction = speed_ff_static_raw * Control_Clamp(magnitude / 50.0f, 1.0f);
-    magnitude = friction + speed_ff_slope_raw_per_rpm * magnitude;
+    /* Keep a short zero-crossing ramp, but provide the full identified
+       breakaway current from 10 rpm upward.  A 50 rpm ramp left the position
+       loop stalled about 5 degrees before its target in the 2026-10-10 test. */
+    friction = speed_ff_static_raw * Control_Clamp(magnitude / 10.0f, 1.0f);
+    /* One linear slope over-feeds the unloaded M3508 at high speed.  Keep
+       the identified 0..1000 rpm slope, then use 55% of that slope.  The
+       2026-10-10 1k/4k/7.4k run showed that the earlier 50% branch still
+       left the PI supplying roughly 55..60 raw after the ramp. */
+    if (magnitude <= 1000.0f) {
+        feedforward_rpm = speed_ff_slope_raw_per_rpm * magnitude;
+    } else {
+        feedforward_rpm = speed_ff_slope_raw_per_rpm * 1000.0f +
+                          speed_ff_slope_raw_per_rpm * 0.55f *
+                          (magnitude - 1000.0f);
+    }
+    magnitude = friction + feedforward_rpm;
+    /* The 200 rpm tests need about 20 raw less current while 500/1000 rpm
+       already track well.  Fade this identified trim out by 500 rpm. */
+    low_speed_trim = 20.0f * (1.0f - Control_Clamp(fabsf(target_rpm) /
+                                                   500.0f, 1.0f));
+    magnitude -= low_speed_trim;
+    if (magnitude < 0.0f) magnitude = 0.0f;
     return target_rpm > 0.0f ? magnitude : -magnitude;
 #else
     (void)target_rpm;
@@ -118,14 +147,14 @@ void Control_Init(void)
     PID_Init(&g_speed_pid, 0.8f, 1.5f, 0.0f, 1500.0f,
              (float)APP_CURRENT_SAFE_LIMIT);
 #else
-    speed_ff_static_raw = 245.0f;
-    speed_ff_slope_raw_per_rpm = 0.75f;
+    speed_ff_static_raw = 200.0f;
+    speed_ff_slope_raw_per_rpm = 0.30f;
     /* With identified speed feedforward, PI only corrects the residual. */
-    PID_Init(&g_speed_pid, 0.5f, 0.45f, 0.0f, 1500.0f,
+    PID_Init(&g_speed_pid, 1.15f, 0.35f, 0.0f, 1500.0f,
              (float)APP_CURRENT_SAFE_LIMIT);
 #endif
     /* Position tuning resumes only after the speed loop is identified. */
-    PID_Init(&g_position_pid, 8.0f, 0.0f, 0.0f, 0.0f,
+    PID_Init(&g_position_pid, 36.0f, 0.0f, 0.0f, 0.0f,
              APP_POSITION_SPEED_LIMIT_RPM);
 #if APP_MOTOR_TYPE == MOTOR_TYPE_M2006
     Control_SetSTSMCGains(45.0f, 400.0f, 30.0f);
@@ -136,8 +165,10 @@ void Control_Init(void)
     control_mode = CONTROL_STOP;
     control_enabled = 0U;
     position_guard_tripped = 0U;
+    position_hold_active = 0U;
     position_guard_ticks = 0U;
     speed_feedback_filtered_rpm = 0.0f;
+    speed_reference_rpm = 0.0f;
     speed_filter_valid = 0U;
 }
 
@@ -163,6 +194,7 @@ void Control_Update1ms(void)
         (APP_HAS_TEMPERATURE && fb.temperature_c >= APP_OVER_TEMPERATURE_C)) {
         current_command = 0;
         speed_command_rpm = 0.0f;
+        speed_reference_rpm = 0.0f;
         PID_Reset(&g_speed_pid);
         Control_ResetSMC();
         if (!control_enabled || control_mode == CONTROL_STOP) PID_Reset(&g_position_pid);
@@ -174,7 +206,14 @@ void Control_Update1ms(void)
         float position_error = target_position_deg - fb.output_angle_deg;
         float absolute_error = fabsf(position_error);
         if (absolute_error <= APP_POSITION_DEADBAND_DEG) {
+            position_hold_active = 1U;
+        } else if (position_hold_active &&
+                   absolute_error >= APP_POSITION_DEADBAND_EXIT_DEG) {
+            position_hold_active = 0U;
+        }
+        if (position_hold_active) {
             requested_speed = 0.0f;
+            speed_reference_rpm = 0.0f;
             PID_Reset(&g_position_pid);
             Control_ResetSMC();
         } else if (control_algorithm == CONTROL_ALGORITHM_SMC) {
@@ -185,6 +224,15 @@ void Control_Update1ms(void)
         }
         requested_speed = Control_Clamp(requested_speed,
                                         APP_POSITION_SPEED_LIMIT_RPM);
+        if (!position_hold_active) {
+            float position_slew_rpm_per_s =
+                (fabsf(requested_speed) <= fabsf(speed_reference_rpm)) ?
+                APP_POSITION_DECEL_RPM_PER_S : APP_POSITION_ACCEL_RPM_PER_S;
+            speed_reference_rpm = Control_Approach(
+                speed_reference_rpm, requested_speed,
+                position_slew_rpm_per_s * APP_CONTROL_PERIOD_S);
+            requested_speed = speed_reference_rpm;
+        }
 
         if (position_guard_ticks == 0U) position_guard_start_error = absolute_error;
         position_guard_ticks++;
@@ -205,7 +253,20 @@ void Control_Update1ms(void)
             position_guard_ticks = 0U;
         }
     } else {
-        requested_speed = target_speed_rpm;
+        /* Limit reference acceleration in direct speed mode.  This avoids the
+           simultaneous proportional and feedforward current step that made
+           the unloaded 200 rpm response sensitive to breakaway friction. */
+        /* The 800/1200 rpm/s profile was safe but made the high-speed and
+           reversal tests spend most of each stage inside the reference ramp.
+           The latest four motor/ESC combinations have ample current margin
+           and little overshoot, so accelerate moderately faster and use a
+           stronger deceleration/reversal rate. */
+        float slew_rpm_per_s = (fabsf(target_speed_rpm) <=
+                                fabsf(speed_reference_rpm)) ? 1800.0f : 1200.0f;
+        speed_reference_rpm = Control_Approach(
+            speed_reference_rpm, target_speed_rpm,
+            slew_rpm_per_s * APP_CONTROL_PERIOD_S);
+        requested_speed = speed_reference_rpm;
     }
     requested_speed = Control_Clamp(requested_speed, APP_SPEED_TARGET_LIMIT_RPM);
     speed_command_rpm = requested_speed;
@@ -215,10 +276,23 @@ void Control_Update1ms(void)
     } else {
         /* Static feedforward already supplies the breakaway current.  Do not
            integrate the large standstill error; enable I only near target. */
-        float feedback_current = PID_UpdateWithIntegralBand(
+        float integral_band = 50.0f;
+        float feedback_current;
+        /* During a commanded speed ramp, proportional feedback and
+           feedforward provide the acceleration; freeze I to avoid storing a
+           transient error.  Once the ramp reaches its final target, widen
+           the I-zone completely so motor/ESC combinations with a larger
+           model mismatch can remove their steady-state error. Position keeps
+           the original narrow band because its inner-loop target is moving. */
+        if (control_mode == CONTROL_SPEED) {
+            integral_band = (fabsf(target_speed_rpm - speed_reference_rpm) <=
+                             1.0f) ? 0.0f : 1.0f;
+        }
+        feedback_current = PID_UpdateWithIntegralBand(
                                             &g_speed_pid, requested_speed,
                                             speed_feedback_filtered_rpm,
-                                            APP_CONTROL_PERIOD_S, 50.0f);
+                                            APP_CONTROL_PERIOD_S,
+                                            integral_band);
         float total_current = feedback_current +
                               Control_SpeedFeedforward(requested_speed);
         current_command = (int16_t)Control_Clamp(total_current,
@@ -232,10 +306,12 @@ void Control_SetEnabled(uint8_t enabled)
     control_enabled = enabled ? 1U : 0U;
     if (control_enabled) {
         position_guard_tripped = 0U;
+        position_hold_active = 0U;
         position_guard_ticks = 0U;
     }
     if (!control_enabled) {
         current_command = 0;
+        speed_reference_rpm = 0.0f;
         PID_Reset(&g_speed_pid);
         PID_Reset(&g_position_pid);
         Control_ResetSMC();
@@ -251,11 +327,13 @@ void Control_SetMode(Control_Mode_t mode)
         (void)Motor_SendCurrent(0);
     }
     control_mode = mode;
+    speed_reference_rpm = 0.0f;
     if (mode == CONTROL_POSITION) {
         Motor_GetFeedback(&fb);
         target_position_deg = fb.output_angle_deg;
     }
     position_guard_tripped = 0U;
+    position_hold_active = 0U;
     position_guard_ticks = 0U;
     PID_Reset(&g_speed_pid);
     PID_Reset(&g_position_pid);
@@ -269,6 +347,7 @@ void Control_SetAlgorithm(Control_Algorithm_t algorithm)
     /* Algorithm changes are intentionally bumpless only after a fresh RUN. */
     control_enabled = 0U;
     current_command = 0;
+    speed_reference_rpm = 0.0f;
     PID_Reset(&g_speed_pid);
     PID_Reset(&g_position_pid);
     Control_ResetSMC();
@@ -318,6 +397,7 @@ void Control_SetTargetPosition(float degrees)
     }
     target_position_deg = next;
     position_guard_tripped = 0U;
+    position_hold_active = 0U;
     position_guard_ticks = 0U;
 }
 

@@ -35,8 +35,9 @@ cboard\vofa.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 cboard\vofa.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 cboard\vofa.o: ../User_Files/Motor/control.h
 cboard\vofa.o: ../User_Files/Motor/motor.h
-cboard\vofa.o: ../User_Files/app_config.h
+cboard\vofa.o: ../User_Files/Motor/app_config.h
 cboard\vofa.o: ../User_Files/PID/pid.h
+cboard\vofa.o: ../User_Files/app_config.h
 cboard\vofa.o: D:\G\stm32\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 cboard\vofa.o: D:\G\stm32\Keil5\ARM\ARMCC\Bin\..\include\string.h
 cboard\vofa.o: D:\G\stm32\Keil5\ARM\ARMCC\Bin\..\include\stdio.h

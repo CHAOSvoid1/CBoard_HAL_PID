@@ -264,7 +264,10 @@ void Vofa_SendTelemetry(const Control_Status_t *status)
             float channel[8];
             uint8_t tail[4];
         } frame;
-        frame.channel[0] = status->target_speed_rpm;
+        /* In speed mode this equals the requested target.  In position mode
+           it exposes the position loop's live speed request instead of the
+           stale target left by the previous speed test. */
+        frame.channel[0] = status->speed_command_rpm;
         frame.channel[1] = (float)status->motor.speed_rpm;
         frame.channel[2] = status->target_position_deg;
         frame.channel[3] = status->motor.output_angle_deg;
@@ -281,7 +284,7 @@ void Vofa_SendTelemetry(const Control_Status_t *status)
         char line[192];
         uint16_t used = 0U;
         AppendText(line, sizeof(line), &used, "motor:");
-        AppendMilli(line, sizeof(line), &used, status->target_speed_rpm);
+        AppendMilli(line, sizeof(line), &used, status->speed_command_rpm);
         AppendChar(line, sizeof(line), &used, ',');
         AppendMilli(line, sizeof(line), &used, (float)status->motor.speed_rpm);
         AppendChar(line, sizeof(line), &used, ',');

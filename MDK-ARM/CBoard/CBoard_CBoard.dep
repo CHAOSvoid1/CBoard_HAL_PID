@@ -33,8 +33,9 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-I (../User_Files/app_config.h)(0x6AC9C3ED)
+I (../User_Files/app_config.h)(0x6ACA26BD)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
+I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (../User_Files/Motor/control.h)(0x6AC877D1)
 I (../User_Files/PID/pid.h)(0x6AC9C2BC)
 I (../User_Files/VOFA/vofa.h)(0x6AC60CB8)
@@ -681,7 +682,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-F (../User_Files/app_config.h)(0x6AC9C3ED)()
+F (../User_Files/app_config.h)(0x6ACA26BD)()
 F (../User_Files/Motor/motor.c)(0x6AC73867)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\motor.o --omf_browse cboard\motor.crf --depend cboard\motor.d)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
 I (../Core/Inc/main.h)(0x6AC602F3)
@@ -716,10 +717,10 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-I (../User_Files/app_config.h)(0x6AC9C3ED)
+I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 F (../User_Files/Motor/motor.h)(0x6AC73867)()
-F (../User_Files/Motor/control.c)(0x6AC9C2EA)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\control.o --omf_browse cboard\control.crf --depend cboard\control.d)
+F (../User_Files/Motor/control.c)(0x6ACA26BE)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\control.o --omf_browse cboard\control.crf --depend cboard\control.d)
 I (../User_Files/Motor/control.h)(0x6AC877D1)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
 I (../Core/Inc/main.h)(0x6AC602F3)
@@ -754,14 +755,14 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-I (../User_Files/app_config.h)(0x6AC9C3ED)
+I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (../User_Files/PID/pid.h)(0x6AC9C2BC)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\math.h)(0x599ECD2E)
 F (../User_Files/Motor/control.h)(0x6AC877D1)()
 F (../User_Files/PID/pid.c)(0x6AC9C2BD)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\pid.o --omf_browse cboard\pid.crf --depend cboard\pid.d)
 I (../User_Files/PID/pid.h)(0x6AC9C2BC)
 F (../User_Files/PID/pid.h)(0x6AC9C2BC)()
-F (../User_Files/VOFA/vofa.c)(0x6AC877D1)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\vofa.o --omf_browse cboard\vofa.crf --depend cboard\vofa.d)
+F (../User_Files/VOFA/vofa.c)(0x6AC9CD27)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\vofa.o --omf_browse cboard\vofa.crf --depend cboard\vofa.d)
 I (../User_Files/VOFA/vofa.h)(0x6AC60CB8)
 I (../Core/Inc/main.h)(0x6AC602F3)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x690EF919)
@@ -797,8 +798,9 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
 I (../User_Files/Motor/control.h)(0x6AC877D1)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
-I (../User_Files/app_config.h)(0x6AC9C3ED)
+I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (../User_Files/PID/pid.h)(0x6AC9C2BC)
+I (../User_Files/app_config.h)(0x6ACA26BD)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\stdio.h)(0x599ECD2C)

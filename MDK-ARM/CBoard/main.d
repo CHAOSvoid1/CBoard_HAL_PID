@@ -34,6 +34,7 @@ cboard\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 cboard\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 cboard\main.o: ../User_Files/app_config.h
 cboard\main.o: ../User_Files/Motor/motor.h
+cboard\main.o: ../User_Files/Motor/app_config.h
 cboard\main.o: ../User_Files/Motor/control.h
 cboard\main.o: ../User_Files/PID/pid.h
 cboard\main.o: ../User_Files/VOFA/vofa.h
