@@ -83,8 +83,8 @@ namespace CBoardMotorWeb
         private readonly string keilProject;
         private readonly string portFile;
         private TcpListener listener;
-        private readonly NotifyIcon tray = new NotifyIcon();
         private readonly object sync = new object();
+        private readonly object lifecycleSync = new object();
         private readonly List<Sample> samples = new List<Sample>();
         private readonly List<LogEntry> logs = new List<LogEntry>();
         private readonly List<byte> binary = new List<byte>();
@@ -97,6 +97,12 @@ namespace CBoardMotorWeb
         private long rxBytes;
         private double lastRxSeconds = -1.0;
         private int port;
+        private readonly DateTime startedUtc = DateTime.UtcNow;
+        private DateTime lastHeartbeatUtc = DateTime.UtcNow;
+        private DateTime? pageClosedUtc;
+        private bool pageSeen;
+        private volatile bool shutdownRequested;
+        private readonly System.Windows.Forms.Timer lifecycleTimer;
 
         public ServerContext()
         {
@@ -113,14 +119,10 @@ namespace CBoardMotorWeb
             File.WriteAllText(portFile, port.ToString(CultureInfo.InvariantCulture));
             listener.BeginAcceptTcpClient(Handle, null);
 
-            ContextMenuStrip menu = new ContextMenuStrip();
-            menu.Items.Add("打开控制台", null, delegate { OpenBrowser(); });
-            menu.Items.Add("退出", null, delegate { Shutdown(); });
-            tray.Icon = System.Drawing.SystemIcons.Application;
-            tray.Text = "C板单电机测试台";
-            tray.ContextMenuStrip = menu;
-            tray.Visible = true;
-            tray.DoubleClick += delegate { OpenBrowser(); };
+            lifecycleTimer = new System.Windows.Forms.Timer();
+            lifecycleTimer.Interval = 1000;
+            lifecycleTimer.Tick += delegate { CheckLifecycle(); };
+            lifecycleTimer.Start();
             if (Environment.GetEnvironmentVariable("CBOARD_NO_BROWSER") != "1") OpenBrowser();
         }
 
@@ -189,6 +191,8 @@ namespace CBoardMotorWeb
                 else if (path == "/api/format") { SetFormat(Get(Form(c), "format")); Json(c, StatusJson()); }
                 else if (path == "/api/samples") Json(c, SamplesJson(ParseLong(ParseQuery(c.Request.Url.Query, "after"))));
                 else if (path == "/api/logs") Json(c, LogsJson(ParseLong(ParseQuery(c.Request.Url.Query, "after"))));
+                else if (path == "/api/heartbeat") { MarkHeartbeat(); Json(c, "{\"ok\":true}"); }
+                else if (path == "/api/page-closed") { MarkPageClosed(); Json(c, "{\"ok\":true}"); }
                 else if (path == "/api/keil") { Keil(Get(Form(c), "mode")); Json(c, "{\"ok\":true}"); }
                 else if (path == "/api/exit") { Json(c, "{\"ok\":true}"); BeginInvokeShutdown(); }
                 else { c.StatusCode = 404; Text(c, "Not found", "text/plain"); }
@@ -469,14 +473,46 @@ namespace CBoardMotorWeb
 
         private void BeginInvokeShutdown()
         {
-            ThreadPool.QueueUserWorkItem(delegate { Thread.Sleep(150); if (tray != null) tray.ContextMenuStrip.BeginInvoke((MethodInvoker)Shutdown); });
+            ThreadPool.QueueUserWorkItem(delegate { Thread.Sleep(150); shutdownRequested = true; });
+        }
+
+        private void MarkHeartbeat()
+        {
+            lock (lifecycleSync)
+            {
+                pageSeen = true;
+                lastHeartbeatUtc = DateTime.UtcNow;
+                pageClosedUtc = null;
+            }
+        }
+
+        private void MarkPageClosed()
+        {
+            lock (lifecycleSync) pageClosedUtc = DateTime.UtcNow;
+        }
+
+        private void CheckLifecycle()
+        {
+            bool shouldShutdown = shutdownRequested;
+            DateTime now = DateTime.UtcNow;
+            lock (lifecycleSync)
+            {
+                if (!pageSeen && now - startedUtc > TimeSpan.FromSeconds(60)) shouldShutdown = true;
+                if (pageSeen && pageClosedUtc.HasValue &&
+                    now - lastHeartbeatUtc > TimeSpan.FromSeconds(4)) shouldShutdown = true;
+                if (pageSeen && now - lastHeartbeatUtc > TimeSpan.FromMinutes(2)) shouldShutdown = true;
+            }
+            if (shouldShutdown) Shutdown();
         }
 
         private void Shutdown()
         {
+            lifecycleTimer.Stop();
             lock (sync) { if (serial != null) { try { serial.Close(); } catch { } serial.Dispose(); serial = null; } }
             try { if (File.Exists(portFile)) File.Delete(portFile); } catch { }
-            tray.Visible = false; tray.Dispose(); try { listener.Stop(); } catch { } ExitThread();
+            try { listener.Stop(); } catch { }
+            lifecycleTimer.Dispose();
+            ExitThread();
         }
     }
 }

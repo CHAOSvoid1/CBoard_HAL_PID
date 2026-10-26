@@ -33,7 +33,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-I (../User_Files/app_config.h)(0x6ACA26BD)
+I (../User_Files/app_config.h)(0x6ACB75C8)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
 I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (../User_Files/Motor/control.h)(0x6AC877D1)
@@ -682,7 +682,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x690EF919)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x690EF919)
-F (../User_Files/app_config.h)(0x6ACA26BD)()
+F (../User_Files/app_config.h)(0x6ACB75C8)()
 F (../User_Files/Motor/motor.c)(0x6AC73867)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../User_Files -I ../User_Files/Motor -I ../User_Files/PID -I ../User_Files/VOFA-I.\RTE\_CBoard-ID:\G\stm32\Keil5\ARM\CMSIS\5.2.0\CMSIS\Include-ID:\G\stm32\Keil5\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o cboard\motor.o --omf_browse cboard\motor.crf --depend cboard\motor.d)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
 I (../Core/Inc/main.h)(0x6AC602F3)
@@ -800,7 +800,7 @@ I (../User_Files/Motor/control.h)(0x6AC877D1)
 I (../User_Files/Motor/motor.h)(0x6AC73867)
 I (../User_Files/Motor/app_config.h)(0x6ACA26BD)
 I (../User_Files/PID/pid.h)(0x6AC9C2BC)
-I (../User_Files/app_config.h)(0x6ACA26BD)
+I (../User_Files/app_config.h)(0x6ACB75C8)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\stdlib.h)(0x599ECD2C)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\string.h)(0x599ECD2C)
 I (D:\G\stm32\Keil5\ARM\ARMCC\include\stdio.h)(0x599ECD2C)
